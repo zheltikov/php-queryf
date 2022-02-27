@@ -1,30 +1,31 @@
 {
-  "version": "0.0.1",
-  "name": "zheltikov/php-queryf",
-  "type": "library",
-  "autoload": {
-    "psr-4": {
-      "Zheltikov\\Queryf\\": "src/"
+    "version": "0.0.1",
+    "name": "zheltikov/php-queryf",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Zheltikov\\Queryf\\": "src/"
+        },
+        "files": [
+            "src/functions.php"
+        ]
     },
-    "files": [
-      "src/functions.php"
-    ]
-  },
-  "require": {
-    "php": ">=7.4",
-    "zheltikov/php-invariant": "^1.0"
-  },
-  "require-dev": {
-    "nazar-pc/phpt-tests-runner": "^1.4"
-  },
-  "authors": [
-    {
-      "name": "Max Zheltikov",
-      "homepage": "https://github.com/zheltikov"
+    "require": {
+        "php": ">=7.4",
+        "ext-mysqli": "*",
+        "zheltikov/php-invariant": "^1.0"
+    },
+    "require-dev": {
+        "nazar-pc/phpt-tests-runner": "^1.4"
+    },
+    "authors": [
+        {
+            "name": "Max Zheltikov",
+            "homepage": "https://github.com/zheltikov"
+        }
+    ],
+    "license": "MIT",
+    "scripts": {
+        "test": "phpt-tests-runner tests/"
     }
-  ],
-  "license": "MIT",
-  "scripts": {
-    "test": "phpt-tests-runner tests/"
-  }
 }
