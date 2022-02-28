@@ -2,10 +2,12 @@
 
 namespace Zheltikov\Queryf;
 
+use mysqli;
+
 /**
  * @param mixed ...$params
  */
-function queryf(string $query, ...$params): string
+function queryf(?mysqli $connection, string $query, ...$params): string
 {
     return (new Query(
         $query,
@@ -16,24 +18,5 @@ function queryf(string $query, ...$params): string
             ),
             $params
         )
-    ))->render(null);
-}
-
-function array_every(array $array, callable $predicate): bool
-{
-    foreach ($array as $key => $value) {
-        if (!call_user_func($predicate, $value, $key)) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-function array_any(array $array, callable $predicate): bool
-{
-    return !array_every(
-        $array,
-        fn(mixed $value, string|int $key): bool => !call_user_func($predicate, $value, $key)
-    );
+    ))->render($connection);
 }
