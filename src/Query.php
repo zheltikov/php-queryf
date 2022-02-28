@@ -222,6 +222,18 @@ class Query
     }
 
     /**
+     * @param QueryArgument[] $params
+     */
+    public function renderInsecure(array $params = []): string
+    {
+        if (func_num_args() === 0) {
+            $params = $this->params;
+        }
+
+        return $this->render(null, $params);
+    }
+
+    /**
      * Raise an exception with, hopefully, a helpful error message.
      *
      * @throws InvalidArgumentException
@@ -360,6 +372,10 @@ class Query
         return substr($s, $offset - $num + 1, $num);
     }
 
+    /**
+     * Append a dynamic object param as key=value joined with sep;
+     * values are passed to appendValue
+     */
     protected function appendValueClauses(
         string &$ret,
         int $idx,
@@ -401,6 +417,10 @@ class Query
         }
     }
 
+    /**
+     * Escape a string (or copy it through unmodified if no connection is
+     * available).
+     */
     protected function appendEscapedString(string &$dest, string $value, ?mysqli $connection): void
     {
         if ($connection === null) {
@@ -468,5 +488,10 @@ class Query
         }
 
         return $ret;
+    }
+
+    public function getQueryFormat(): string
+    {
+        return $this->query_text->getQuery();
     }
 }
