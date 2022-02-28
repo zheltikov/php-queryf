@@ -3,6 +3,8 @@
 namespace Zheltikov\Queryf;
 
 use InvalidArgumentException;
+use JetBrains\PhpStorm\Pure;
+use Zheltikov\Queryf\QueryArgumentType as Type;
 use mysqli;
 
 class Query
@@ -18,6 +20,7 @@ class Query
     /**
      * @param QueryArgument[] $params
      */
+    #[Pure]
     public function __construct(string $query_text, array $params = [])
     {
         $this->query_text = new QueryText($query_text);
@@ -70,7 +73,7 @@ class Query
 
             $param =& $params[$current_param++];
             if ($c === 'd' || $c === 's' || $c === 'f' || $c === 'u') {
-                $this->appendValue($result, $idx, $c, $param);
+                $this->appendValue($result, $idx, $c, $param, $conn);
             } elseif ($c === 'm') {
                 if (
                     !$param->isString()
@@ -82,15 +85,15 @@ class Query
                     $this->parseError($query, $idx, '%m expects int/float/string/bool');
                 }
 
-                $this->appendValue($result, $idx, $c, $param);
+                $this->appendValue($result, $idx, $c, $param, $conn);
             } elseif ($c === 'K') {
                 $result .= '/*';
-                append_comment($result, $param);
+                $this->appendComment($result, $param);
                 $result .= '*/';
             } elseif ($c === 'T' || $c === 'C') {
-                append_column_table_name($result, $param);
+                $this->appendColumnTableName($result, $param);
             } elseif ($c === '=') {
-                $type = advance($query, $idx, 1);
+                $type = $this->advance($query, $idx, 1);
 
                 if (
                     $type !== 'd'
@@ -110,7 +113,7 @@ class Query
                     $result .= ' IS NULL';
                 } else {
                     $result .= ' = ';
-                    $this->appendValue($result, $idx, $type[0], $param);
+                    $this->appendValue($result, $idx, $type[0], $param, $conn);
                 }
             } elseif ($c === 'V') {
                 if ($param->isQuery()) {
@@ -136,7 +139,7 @@ class Query
                             $result .= ', ';
                         }
 
-                        $this->appendValue($result, $idx, 'v', $col);
+                        $this->appendValue($result, $idx, 'v', $col, $conn);
                         $col_idx++;
                         $first_in_row = false;
 
@@ -158,12 +161,12 @@ class Query
                     }
                 }
             } elseif ($c === 'L') {
-                $type = advance($query, $idx, 1);
+                $type = $this->advance($query, $idx, 1);
 
                 if ($type === 'O' || $type === 'A') {
                     $result .= '(';
                     $sep = $type === 'O' ? ' OR ' : ' AND ';
-                    append_value_clauses($result, $idx, $sep, $param);
+                    $this->appendValueClauses($result, $idx, $sep, $param);
                     $result .= ')';
                 } else {
                     if (!$param->isList()) {
@@ -183,17 +186,17 @@ class Query
                         $first_param = false;
 
                         if ($type === 'C') {
-                            append_column_table_name($result, $val);
+                            $this->appendColumnTableName($result, $val);
                         } else {
-                            $this->appendValue($result, $idx, $type[0], $val);
+                            $this->appendValue($result, $idx, $type[0], $val, $conn);
                         }
                     }
                 }
             } elseif ($c === 'U' || $c === 'W') {
                 if ($c === 'W') {
-                    append_value_clauses($result, $idx, ' AND ', $param);
+                    $this->appendValueClauses($result, $idx, ' AND ', $param);
                 } else {
-                    append_value_clauses($result, $idx, ', ', $param);
+                    $this->appendValueClauses($result, $idx, ', ', $param);
                 }
             } elseif ($c === 'Q') {
                 if ($param->isQuery()) {
@@ -232,7 +235,7 @@ class Query
 
         if ($d->isString()) {
             if ($type !== 's' && $type !== 'v' && $type !== 'm') {
-                $this->formatStringParseError($query, $offset, $type, 'string');
+                $this->formatStringParseError($query, $offset, $type, Type::String);
             }
 
             $value = $d->asString();
@@ -241,13 +244,13 @@ class Query
             $s .= '"';
         } elseif ($d->isBool()) {
             if ($type !== 'v' && $type !== 'm') {
-                $this->formatStringParseError($query, $offset, $type, 'bool');
+                $this->formatStringParseError($query, $offset, $type, Type::Bool);
             }
 
             $s .= $d->asString();
         } elseif ($d->isInt()) {
             if ($type !== 'd' && $type !== 'v' && $type !== 'm' && $type !== 'u') {
-                $this->formatStringParseError($query, $offset, $type, 'int');
+                $this->formatStringParseError($query, $offset, $type, Type::Int);
             }
 
             if ($type === 'u') {
@@ -257,7 +260,7 @@ class Query
             }
         } elseif ($d->isDouble()) {
             if ($type !== 'f' && $type !== 'v' && $type !== 'm') {
-                $this->formatStringParseError($query, $offset, $type, 'double');
+                $this->formatStringParseError($query, $offset, $type, Type::Double);
             }
 
             $s .= $d->asString();
@@ -274,14 +277,15 @@ class Query
         string $query_text,
         int $offset,
         string $format_specifier,
-        string $value_type
+        Type $value_type
     ): void {
         $this->parseError(
             $query_text,
             $offset,
             sprintf(
-                'invalid value type %s for format string %%%s',
-                $value_type,
+                'invalid value type %s (%s) for format string %%%s',
+                $value_type->name,
+                $value_type->value,
                 $format_specifier
             )
         );
