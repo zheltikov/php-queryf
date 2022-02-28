@@ -28,27 +28,26 @@ echo 'query: ' . $q->renderInsecure();
 ```
 
 ```injectablephp
+use Zheltikov\Queryf\Pair;
 use Zheltikov\Queryf\Query;
 use Zheltikov\Queryf\QueryArgument;
 use Zheltikov\Queryf\QueryArgumentType as Type;
+use Zheltikov\Queryf\_List;
 
 $condition = QueryArgument::fromDynamic(Type::PairList);
-$condition->getPairs()[] = [
-    QueryArgument::fromDynamic(Type::String, 'id1'),
-    QueryArgument::newInt(7),
-];
-$condition->getPairs()[] = [
-    QueryArgument::newString('id2'),
-    QueryArgument::newInt(14),
-];
+$condition->getPairs()
+    ->append(new Pair('id1', QueryArgument::newInt(7)))
+    ->append(new Pair('id2', QueryArgument::newInt(14)));
 
 $q = new Query(
     'SELECT %LC FROM %T WHERE %W',
     [
         QueryArgument::fromDynamic(
             Type::List,
-            QueryArgument::newString('id1_type'),
-            QueryArgument::newString('data'),
+            new _List(
+                QueryArgument::newString('id1_type'),
+                QueryArgument::newString('data'),
+            ),
         ),
         QueryArgument::newString('assoc_info'),
         $condition,

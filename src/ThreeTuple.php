@@ -16,13 +16,28 @@ class ThreeTuple
         return $this->first;
     }
 
+    public function getFirstArgument(): QueryArgument
+    {
+        return QueryArgument::newString($this->first);
+    }
+
     public function getSecond(): string
     {
         return $this->second;
     }
 
+    public function getSecondArgument(): QueryArgument
+    {
+        return QueryArgument::newString($this->second);
+    }
+
     public function getThird(): string
     {
         return $this->third;
+    }
+
+    public function getThirdArgument(): QueryArgument
+    {
+        return QueryArgument::newString($this->third);
     }
 }

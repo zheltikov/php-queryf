@@ -328,18 +328,18 @@ class Query
         } elseif ($d->isTwoTuple()) {
             // If a two-tuple is provided we have a qualified column name
             $t = $d->getTwoTuple();
-            $this->appendColumnTableName($s, QueryArgument::newString($t->getFirst()));
+            $this->appendColumnTableName($s, $t->getFirstArgument());
             $s .= '.';
-            $this->appendColumnTableName($s, QueryArgument::newString($t->getSecond()));
+            $this->appendColumnTableName($s, $t->getSecondArgument());
         } elseif ($d->isThreeTuple()) {
             // If a three-tuple is provided we have a qualified column name
             // with an alias. This is helpful for constructing JOIN queries.
             $t = $d->getThreeTuple();
-            $this->appendColumnTableName($s, QueryArgument::newString($t->getFirst()));
+            $this->appendColumnTableName($s, $t->getFirstArgument());
             $s .= '.';
-            $this->appendColumnTableName($s, QueryArgument::newString($t->getSecond()));
+            $this->appendColumnTableName($s, $t->getSecondArgument());
             $s .= ' AS ';
-            $this->appendColumnTableName($s, QueryArgument::newString($t->getThird()));
+            $this->appendColumnTableName($s, $t->getThirdArgument());
         } else {
             $s .= $d->asString();
         }
@@ -415,7 +415,7 @@ class Query
             }
 
             $first_param = false;
-            $this->appendColumnTableName($ret, QueryArgument::newString($pair->getFirst()));
+            $this->appendColumnTableName($ret, $pair->getFirstArgument());
 
             if ($pair->getSecond()->isNull() && $sep[0] !== ',') {
                 $ret .= ' IS NULL';

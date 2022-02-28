@@ -22,38 +22,20 @@ enum QueryArgumentType: string
      */
     public static function fromDynamic(mixed $value): self
     {
-        if (is_string($value)) {
-            return self::String;
-        } elseif (is_bool($value)) {
-            return self::Bool;
-        } elseif (is_null($value)) {
-            return self::Null;
-        } elseif (is_double($value)) {
-            return self::Double;
-        } elseif (is_int($value)) {
-            return self::Int;
-        } elseif ($value instanceof Query) {
-            return self::Query;
-        } elseif ($value instanceof TwoTuple) {
-            return self::TwoTuple;
-        } elseif ($value instanceof ThreeTuple) {
-            return self::ThreeTuple;
-        } elseif (is_array($value) && array_is_list($value)) {
-            if (count($value) === 0) {
-                return self::PairList;
-            }
-
-            if (array_every($value, fn($item) => $item instanceof QueryArgument)) {
-                return self::List;
-            }
-
-            if (array_every($value, fn($item) => $item instanceof Pair)) {
-                return self::PairList;
-            }
-        }
-
-        throw new InvalidArgumentException(
-            'Could not find a matching QueryArgumentType for value with type ' . get_debug_type($value),
-        );
+        return match (true) {
+            is_string($value) => self::String,
+            is_bool($value) => self::Bool,
+            is_null($value) => self::Null,
+            is_double($value) => self::Double,
+            is_int($value) => self::Int,
+            $value instanceof Query => self::Query,
+            $value instanceof TwoTuple => self::TwoTuple,
+            $value instanceof ThreeTuple => self::ThreeTuple,
+            $value instanceof _List => self::List,
+            $value instanceof PairList => self::PairList,
+            default => throw new InvalidArgumentException(
+                'Could not find a matching QueryArgumentType for value with type ' . get_debug_type($value),
+            ),
+        };
     }
 }

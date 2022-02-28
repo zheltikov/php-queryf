@@ -15,8 +15,18 @@ class TwoTuple
         return $this->first;
     }
 
+    public function getFirstArgument(): QueryArgument
+    {
+        return QueryArgument::newString($this->first);
+    }
+
     public function getSecond(): string
     {
         return $this->second;
+    }
+
+    public function getSecondArgument(): QueryArgument
+    {
+        return QueryArgument::newString($this->second);
     }
 }

@@ -87,10 +87,7 @@ class QueryArgument
         return $this->value;
     }
 
-    /**
-     * @return QueryArgument[]
-     */
-    public function getList(): array
+    public function getList(): _List
     {
         invariant(
             $this->type === Type::List,
@@ -100,10 +97,7 @@ class QueryArgument
         return $this->value;
     }
 
-    /**
-     * @return Pair[]
-     */
-    public function getPairs(): array
+    public function getPairs(): PairList
     {
         invariant(
             $this->type === Type::PairList,
@@ -191,7 +185,7 @@ class QueryArgument
         return $that;
     }
 
-    public static function newPairList(Pair ...$pair_list): static
+    public static function newPairList(PairList $pair_list): static
     {
         $that = new static();
         $that->type = Type::PairList;
@@ -203,7 +197,7 @@ class QueryArgument
     {
         $that = new static();
         $that->type = Type::PairList;
-        $that->value = [];
+        $that->value = new PairList();
         return $that;
     }
 
@@ -223,7 +217,7 @@ class QueryArgument
         return $that;
     }
 
-    public static function newList(self ...$list): static
+    public static function newList(_List $list): static
     {
         $that = new static();
         $that->type = Type::List;
