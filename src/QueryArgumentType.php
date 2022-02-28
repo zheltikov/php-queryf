@@ -35,10 +35,30 @@ enum QueryArgumentType: string
         } elseif ($value instanceof Query) {
             return self::Query;
         } elseif (is_array($value)) {
-            self::PairList;     // array<string, QueryArgument>, can be empty
-            self::List;         // QueryArgument[], can be empty
-            self::TwoTuple;     // (string, string)
-            self::ThreeTuple;   // (string, string, string)
+            if (array_is_list($value)) {
+                if (
+                    count($value) === 2
+                    && array_every($value, is_string(...))
+                ) {
+                    return self::TwoTuple;
+                }
+
+                if (
+                    count($value) === 3
+                    && array_every($value, is_string(...))
+                ) {
+                    return self::ThreeTuple;
+                }
+
+                if (array_every($value, fn(mixed $item) => $item instanceof QueryArgument)) {
+                    return self::List;
+                }
+            } elseif (array_every(
+                $value,
+                fn(mixed $item, string|int $key) => is_string($key) && $item instanceof QueryArgument
+            )) {
+                return self::PairList;
+            }
         }
 
         throw new InvalidArgumentException(

@@ -24,11 +24,24 @@ function queryf(string $query, ...$params): string
  */
 function isVectorOf(array $array, string $class): bool
 {
-    foreach ($array as $item) {
-        if (!($item instanceof $class)) {
+    return array_every($array, fn(mixed $item) => $item instanceof $class);
+}
+
+function array_every(array $array, callable $predicate): bool
+{
+    foreach ($array as $key => $value) {
+        if (!call_user_func($predicate, $value, $key)) {
             return false;
         }
     }
 
     return true;
+}
+
+function array_any(array $array, callable $predicate): bool
+{
+    return !array_every(
+        $array,
+        fn(mixed $value, string|int $key): bool => !call_user_func($predicate, $value, $key)
+    );
 }

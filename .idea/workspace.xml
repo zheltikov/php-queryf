@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="53121bc9-6ab4-4fea-b134-9f2e5ebbb08d" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/QueryArgument.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/QueryArgument.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/QueryArgumentType.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/QueryArgumentType.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/functions.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/functions.php" afterDir="false" />
     </list>
@@ -53,7 +52,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1645991397667</updated>
-      <workItem from="1645991399541" duration="12236000" />
+      <workItem from="1645991399541" duration="13172000" />
     </task>
     <servers />
   </component>
