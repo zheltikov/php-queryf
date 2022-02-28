@@ -166,7 +166,7 @@ class Query
                 if ($type === 'O' || $type === 'A') {
                     $result .= '(';
                     $sep = $type === 'O' ? ' OR ' : ' AND ';
-                    $this->appendValueClauses($result, $idx, $sep, $param);
+                    $this->appendValueClauses($result, $idx, $sep, $param, $conn);
                     $result .= ')';
                 } else {
                     if (!$param->isList()) {
@@ -194,9 +194,9 @@ class Query
                 }
             } elseif ($c === 'U' || $c === 'W') {
                 if ($c === 'W') {
-                    $this->appendValueClauses($result, $idx, ' AND ', $param);
+                    $this->appendValueClauses($result, $idx, ' AND ', $param, $conn);
                 } else {
-                    $this->appendValueClauses($result, $idx, ', ', $param);
+                    $this->appendValueClauses($result, $idx, ', ', $param, $conn);
                 }
             } elseif ($c === 'Q') {
                 if ($param->isQuery()) {
