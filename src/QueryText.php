@@ -15,4 +15,10 @@ class QueryText
     {
         return $this->query;
     }
+
+    public function append(string|self $text): static
+    {
+        $this->query .= is_string($text) ? $text : $text->query;
+        return $this;
+    }
 }

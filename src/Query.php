@@ -13,18 +13,15 @@ class Query
     protected bool $unsafe_query = false;
 
     /**
-     * @var QueryArgument[]
-     */
-    protected array $params = [];
-
-    /**
      * @param QueryArgument[] $params
      */
     #[Pure]
-    public function __construct(string $query_text, array $params = [])
+    public function __construct(string|QueryText $query_text, protected array $params = [])
     {
-        $this->query_text = new QueryText($query_text);
-        $this->params = $params;
+        $this->query_text = is_string($query_text)
+            ? new QueryText($query_text)
+            : $query_text;
+
         $this->unsafe_query = false;
     }
 
@@ -38,6 +35,10 @@ class Query
         }
 
         $query = $this->query_text->getQuery();
+
+        if ($this->unsafe_query) {
+            return $query;
+        }
 
         $offset = strpos($query, ';\'"`');
         if ($offset !== false) {
@@ -200,7 +201,7 @@ class Query
                 }
             } elseif ($c === 'Q') {
                 if ($param->isQuery()) {
-                    $result .= $param->getQuery()->render();
+                    $result .= $param->getQuery()->render($conn);
                 } else {
                     $result .= $param->asString();
                 }
@@ -231,6 +232,11 @@ class Query
         throw new InvalidArgumentException($msg);
     }
 
+    /**
+     * Append a dynamic to the query string we're building.  We ensure the
+     * type matches the dynamic's type (or allow a magic 'v' type to be
+     * any value, but this isn't exposed to the users of the library).
+     */
     protected function appendValue(string &$s, int $offset, string $type, QueryArgument $d, ?mysqli $connection): void
     {
         $query = $this->query_text->getQuery();
@@ -393,5 +399,74 @@ class Query
                 $this->appendValue($ret, $idx, 'v', $pair[1], $connection);
             }
         }
+    }
+
+    protected function appendEscapedString(string &$dest, string $value, ?mysqli $connection): void
+    {
+        if ($connection === null) {
+            // connectionless escape performed; this should only occur in testing.
+            $dest .= $value;
+            return;
+        }
+
+        $dest .= $connection->real_escape_string($value);
+    }
+
+    public function isUnsafe(): bool
+    {
+        return $this->unsafe_query;
+    }
+
+    /**
+     * Allow queries that look evil (aka, raw queries).  Don't use this.
+     * It's horrible.
+     */
+    protected function allowUnsafeEvilQueries(): void
+    {
+        $this->unsafe_query = true;
+    }
+
+    /**
+     * If you need to construct a raw query, use this evil function.
+     */
+    public static function unsafe(string|QueryText $query_text): static
+    {
+        $ret = new static($query_text);
+        $ret->allowUnsafeEvilQueries();
+        return $ret;
+    }
+
+    public function append(string|QueryText|Query $query2)
+    {
+        $this->query_text->append(
+            $query2 instanceof Query
+                ? $query2->query_text
+                : $query2
+        );
+
+        if ($query2 instanceof Query) {
+            foreach ($query2->params as $param) {
+                $this->params[] = $param;
+            }
+        }
+    }
+
+    /**
+     * @param static[] $queries
+     */
+    public function renderMultiQuery(?mysqli $connection, array $queries): string
+    {
+        $ret = '';
+
+        // Not adding `;` in the end
+        foreach ($queries as $query) {
+            if (strlen($ret) !== 0) {
+                $ret .= ';';
+            }
+
+            $ret .= $query->render($connection);
+        }
+
+        return $ret;
     }
 }
