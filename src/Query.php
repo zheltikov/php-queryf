@@ -221,6 +221,8 @@ class Query
     }
 
     /**
+     * Raise an exception with, hopefully, a helpful error message.
+     *
      * @throws InvalidArgumentException
      */
     protected function parseError(string $s, int $offset, string $message): void
@@ -316,11 +318,14 @@ class Query
         }
     }
 
+    /**
+     * Raise an exception for format string/value mismatches
+     */
     protected function formatStringParseError(
         string $query_text,
         int $offset,
         string $format_specifier,
-        Type $value_type
+        Type $value_type,
     ): void {
         $this->parseError(
             $query_text,
@@ -332,5 +337,61 @@ class Query
                 $format_specifier
             )
         );
+    }
+
+    /**
+     * Consume the next x bytes from s, updating offset, and raising an
+     * exception if there aren't sufficient bytes left.
+     */
+    protected function advance(string $s, int &$offset, int $num): string
+    {
+        if (strlen($s) <= $offset + $num) {
+            $this->parseError($s, $offset, 'unexpected end of string');
+        }
+
+        $offset += $num;
+
+        return substr($s, $offset - $num + 1, $num);
+    }
+
+    protected function appendValueClauses(
+        string &$ret,
+        int $idx,
+        string $sep,
+        QueryArgument $param,
+        ?mysqli $connection,
+    ): void {
+        $query = $this->query_text->getQuery();
+
+        if (!$param->isPairList()) {
+            $this->parseError(
+                $query,
+                $idx,
+                sprintf(
+                    'object expected for %%Lx but received %s (%s)',
+                    $param->typeName()->name,
+                    $param->typeName()->value,
+                ),
+            );
+        }
+
+        // Sort these to get consistent query ordering (mainly for
+        // testing, but also aesthetics of the final query).
+        $first_param = true;
+        foreach ($param->getPairs() as $pair) {
+            if (!$first_param) {
+                $ret .= $sep;
+            }
+
+            $first_param = false;
+            $this->appendColumnTableName($ret, $pair[0]);
+
+            if ($pair[1]->isNull() && $sep[0] !== ',') {
+                $ret .= ' IS NULL';
+            } else {
+                $ret .= ' = ';
+                $this->appendValue($ret, $idx, 'v', $pair[1], $connection);
+            }
+        }
     }
 }
