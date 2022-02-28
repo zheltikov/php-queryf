@@ -23,6 +23,9 @@ class QueryArgument
 
     // -------------------------------------------------------------------------
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public static function fromDynamic(Type $type, mixed ...$args): static
     {
         /** @var callable $factory */

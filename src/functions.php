@@ -10,7 +10,10 @@ function queryf(string $query, ...$params): string
     return (new Query(
         $query,
         array_map(
-            fn($p) => new QueryArgument($p),
+            fn($p) => QueryArgument::fromDynamic(
+                QueryArgumentType::fromDynamic($p),
+                $p
+            ),
             $params
         )
     ))->render(null);
