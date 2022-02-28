@@ -100,7 +100,10 @@ class QueryArgument
         return $this->value;
     }
 
-    public function &getPairs(): array
+    /**
+     * @return Pair[]
+     */
+    public function getPairs(): array
     {
         invariant(
             $this->type === Type::PairList,
@@ -110,7 +113,7 @@ class QueryArgument
         return $this->value;
     }
 
-    public function getTwoTuple(): array
+    public function getTwoTuple(): TwoTuple
     {
         invariant(
             $this->type === Type::TwoTuple,
@@ -120,7 +123,7 @@ class QueryArgument
         return $this->value;
     }
 
-    public function getThreeTuple(): array
+    public function getThreeTuple(): ThreeTuple
     {
         invariant(
             $this->type === Type::ThreeTuple,
@@ -188,13 +191,11 @@ class QueryArgument
         return $that;
     }
 
-    public static function newPairList(string $param1, self $param2): static
+    public static function newPairList(Pair ...$pair_list): static
     {
         $that = new static();
         $that->type = Type::PairList;
-        $that->value = [
-            [$param1, $param2],
-        ];
+        $that->value = $pair_list;
         return $that;
     }
 
@@ -246,19 +247,19 @@ class QueryArgument
         return $that;
     }
 
-    public static function newTwoTuple(string $param1, string $param2): static
+    public static function newTwoTuple(TwoTuple $two_tuple): static
     {
         $that = new static();
         $that->type = Type::TwoTuple;
-        $that->value = [$param1, $param2];
+        $that->value = $two_tuple;
         return $that;
     }
 
-    public static function newThreeTuple(string $param1, string $param2, string $param3): static
+    public static function newThreeTuple(ThreeTuple $three_tuple): static
     {
         $that = new static();
         $that->type = Type::ThreeTuple;
-        $that->value = [$param1, $param2, $param3];
+        $that->value = $three_tuple;
         return $that;
     }
 

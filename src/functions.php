@@ -19,14 +19,6 @@ function queryf(string $query, ...$params): string
     ))->render(null);
 }
 
-/**
- * @param class-string $class
- */
-function isVectorOf(array $array, string $class): bool
-{
-    return array_every($array, fn(mixed $item) => $item instanceof $class);
-}
-
 function array_every(array $array, callable $predicate): bool
 {
     foreach ($array as $key => $value) {

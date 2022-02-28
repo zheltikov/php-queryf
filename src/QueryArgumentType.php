@@ -34,29 +34,20 @@ enum QueryArgumentType: string
             return self::Int;
         } elseif ($value instanceof Query) {
             return self::Query;
-        } elseif (is_array($value)) {
-            if (array_is_list($value)) {
-                if (
-                    count($value) === 2
-                    && array_every($value, is_string(...))
-                ) {
-                    return self::TwoTuple;
-                }
+        } elseif ($value instanceof TwoTuple) {
+            return self::TwoTuple;
+        } elseif ($value instanceof ThreeTuple) {
+            return self::ThreeTuple;
+        } elseif (is_array($value) && array_is_list($value)) {
+            if (count($value) === 0) {
+                return self::PairList;
+            }
 
-                if (
-                    count($value) === 3
-                    && array_every($value, is_string(...))
-                ) {
-                    return self::ThreeTuple;
-                }
+            if (array_every($value, fn($item) => $item instanceof QueryArgument)) {
+                return self::List;
+            }
 
-                if (array_every($value, fn(mixed $item) => $item instanceof QueryArgument)) {
-                    return self::List;
-                }
-            } elseif (array_every(
-                $value,
-                fn(mixed $item, string|int $key) => is_string($key) && $item instanceof QueryArgument
-            )) {
+            if (array_every($value, fn($item) => $item instanceof Pair)) {
                 return self::PairList;
             }
         }
