@@ -100,7 +100,7 @@ class QueryArgument
         return $this->value;
     }
 
-    public function getPairs(): array
+    public function &getPairs(): array
     {
         invariant(
             $this->type === Type::PairList,
