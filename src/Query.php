@@ -273,6 +273,49 @@ class Query
         }
     }
 
+    protected function appendComment(string &$s, QueryArgument $d): void
+    {
+        $str = $d->asString();
+        $str = str_replace('/*', ' / * ', $str);
+        $str = str_replace('*/', ' * / ', $str);
+        $s .= $str;
+    }
+
+    protected function appendColumnTableName(string &$s, QueryArgument $d): void
+    {
+        if ($d->isString()) {
+            $s .= '`';
+
+            foreach ($d->getString() as $char) {
+                // Toss in an extra ` if we see one.
+                if ($char === '`') {
+                    $s .= '`';
+                }
+
+                $s .= $char;
+            }
+
+            $s .= '`';
+        } elseif ($d->isTwoTuple()) {
+            // If a two-tuple is provided we have a qualified column name
+            $t = $d->getTwoTuple();
+            $this->appendColumnTableName($s, $t[0]);
+            $s .= '.';
+            $this->appendColumnTableName($s, $t[1]);
+        } elseif ($d->isThreeTuple()) {
+            // If a three-tuple is provided we have a qualified column name
+            // with an alias. This is helpful for constructing JOIN queries.
+            $t = $d->getThreeTuple();
+            $this->appendColumnTableName($s, $t[0]);
+            $s .= '.';
+            $this->appendColumnTableName($s, $t[1]);
+            $s .= ' AS ';
+            $this->appendColumnTableName($s, $t[2]);
+        } else {
+            $s .= $d->asString();
+        }
+    }
+
     protected function formatStringParseError(
         string $query_text,
         int $offset,
