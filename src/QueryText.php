@@ -2,6 +2,9 @@
 
 namespace Zheltikov\Queryf;
 
+/**
+ * QueryText is a container for query stmt used by the Query.
+ */
 class QueryText
 {
     protected string $query;

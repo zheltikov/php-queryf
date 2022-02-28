@@ -138,6 +138,14 @@ class QueryArgument
     // -------------------------------------------------------------------------
 
     /**
+     * Since we already have callsites that use dynamic, we are keeping the
+     * support, but internally we unpack them.
+     * This factory method will throw exception if the dynamic isn't acceptable
+     * Creating this as a factory method has two benefits: one is it will prevent
+     * accidentally adding more callsites, secondly it is easily bgs-able.
+     * Also makes it explicit this might throw whereas the other constructors
+     * might not.
+     *
      * @throws InvalidArgumentException
      */
     public static function fromDynamic(Type $type, mixed ...$args): static

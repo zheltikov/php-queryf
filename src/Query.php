@@ -13,6 +13,8 @@ class Query
     protected bool $unsafe_query = false;
 
     /**
+     * Query can be constructed with or without params.
+     *
      * @param QueryArgument[] $params
      */
     #[Pure]
@@ -26,6 +28,9 @@ class Query
     }
 
     /**
+     * Render either with the parameters to the constructor or specified
+     * ones.
+     *
      * @param QueryArgument[] $params
      */
     public function render(?mysqli $conn, array $params = []): string
@@ -222,6 +227,10 @@ class Query
     }
 
     /**
+     * Render either with the parameters to the constructor or specified
+     * ones. This is mainly for testing as it does not properly escape
+     * the MySQL strings.
+     *
      * @param QueryArgument[] $params
      */
     public function renderInsecure(array $params = []): string
@@ -474,7 +483,7 @@ class Query
     /**
      * @param static[] $queries
      */
-    public function renderMultiQuery(?mysqli $connection, array $queries): string
+    public static function renderMultiQuery(?mysqli $connection, array $queries): string
     {
         $ret = '';
 
