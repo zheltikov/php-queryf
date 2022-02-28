@@ -294,7 +294,7 @@ class Query
         if ($d->isString()) {
             $s .= '`';
 
-            foreach ($d->getString() as $char) {
+            foreach (str_split($d->getString()) as $char) {
                 // Toss in an extra ` if we see one.
                 if ($char === '`') {
                     $s .= '`';

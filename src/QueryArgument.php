@@ -5,6 +5,8 @@ namespace Zheltikov\Queryf;
 use InvalidArgumentException;
 use Zheltikov\Queryf\QueryArgumentType as Type;
 
+use function Zheltikov\Invariant\invariant;
+
 class QueryArgument
 {
     protected mixed $value;
@@ -15,6 +17,118 @@ class QueryArgument
     }
 
     // -------------------------------------------------------------------------
+
+    public function asString(): string
+    {
+        return match (true) {
+            $this->isDouble(),
+            $this->isInt(),
+            $this->isString() => (string) $this->value,
+
+            $this->isBool() => $this->value ? 'TRUE' : 'FALSE',
+
+            default => throw new InvalidArgumentException(
+                sprintf(
+                    'Only allowed type conversions are Int, Double, Bool and String: type found: %s (%s)',
+                    $this->type->name,
+                    $this->type->value,
+                ),
+            ),
+        };
+    }
+
+    public function getDouble(): float
+    {
+        invariant(
+            $this->type === Type::Double,
+            'Expected QueryArgument type to be Type::Double',
+        );
+
+        return $this->value;
+    }
+
+    public function getInt(): int
+    {
+        invariant(
+            $this->type === Type::Int,
+            'Expected QueryArgument type to be Type::Int',
+        );
+
+        return $this->value;
+    }
+
+    public function getBool(): bool
+    {
+        invariant(
+            $this->type === Type::Bool,
+            'Expected QueryArgument type to be Type::Bool',
+        );
+
+        return $this->value;
+    }
+
+    public function getQuery(): Query
+    {
+        invariant(
+            $this->type === Type::Query,
+            'Expected QueryArgument type to be Type::Query',
+        );
+
+        return $this->value;
+    }
+
+    public function getString(): string
+    {
+        invariant(
+            $this->type === Type::String,
+            'Expected QueryArgument type to be Type::String',
+        );
+
+        return $this->value;
+    }
+
+    /**
+     * @return QueryArgument[]
+     */
+    public function getList(): array
+    {
+        invariant(
+            $this->type === Type::List,
+            'Expected QueryArgument type to be Type::List',
+        );
+
+        return $this->value;
+    }
+
+    public function getPairs(): array
+    {
+        invariant(
+            $this->type === Type::PairList,
+            'Expected QueryArgument type to be Type::PairList',
+        );
+
+        return $this->value;
+    }
+
+    public function getTwoTuple(): array
+    {
+        invariant(
+            $this->type === Type::TwoTuple,
+            'Expected QueryArgument type to be Type::TwoTuple',
+        );
+
+        return $this->value;
+    }
+
+    public function getThreeTuple(): array
+    {
+        invariant(
+            $this->type === Type::ThreeTuple,
+            'Expected QueryArgument type to be Type::ThreeTuple',
+        );
+
+        return $this->value;
+    }
 
     public function typeName(): Type
     {
